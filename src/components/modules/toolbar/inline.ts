@@ -3,7 +3,12 @@ import $ from '../../dom';
 
 import SelectionUtils from '../../selection';
 import _ from '../../utils';
-import {InlineTool, InlineToolConstructable, ToolConstructable, ToolSettings} from '../../../../types';
+import {
+  InlineTool,
+  InlineToolConstructable,
+  ToolConstructable,
+  ToolSettings,
+} from '../../../../types';
 import Flipper from '../../flipper';
 
 /**
@@ -14,7 +19,6 @@ import Flipper from '../../flipper';
  * |________________________|
  */
 export default class InlineToolbar extends Module {
-
   /**
    * CSS styles
    */
@@ -40,7 +44,11 @@ export default class InlineToolbar extends Module {
   /**
    * Inline Toolbar elements
    */
-  private nodes: { wrapper: HTMLElement, buttons: HTMLElement, actions: HTMLElement } = {
+  private nodes: {
+    wrapper: HTMLElement;
+    buttons: HTMLElement;
+    actions: HTMLElement;
+  } = {
     wrapper: null,
     buttons: null,
     /**
@@ -107,7 +115,9 @@ export default class InlineToolbar extends Module {
 
     // To prevent reset of a selection when click on the wrapper
     this.Editor.Listeners.on(this.nodes.wrapper, 'mousedown', (event) => {
-      const isClickedOnActionsWrapper = (event.target as Element).closest(`.${this.CSS.actionsWrapper}`);
+      const isClickedOnActionsWrapper = (event.target as Element).closest(
+        `.${this.CSS.actionsWrapper}`,
+      );
 
       // If click is on actions wrapper,
       // do not prevent default behaviour because actions might include interactive elements
@@ -176,11 +186,12 @@ export default class InlineToolbar extends Module {
     const wrapperOffset = this.Editor.UI.nodes.wrapper.getBoundingClientRect();
     const newCoords = {
       x: selectionRect.x - wrapperOffset.left,
-      y: selectionRect.y
-        + selectionRect.height
+      y:
+        selectionRect.y +
+        selectionRect.height -
         // + window.scrollY
-        - wrapperOffset.top
-        + this.toolbarVerticalMargin,
+        wrapperOffset.top +
+        this.toolbarVerticalMargin,
     };
 
     /**
@@ -202,12 +213,22 @@ export default class InlineToolbar extends Module {
      */
     this.nodes.wrapper.classList.toggle(
       this.CSS.inlineToolbarLeftOriented,
-      realLeftCoord < this.Editor.UI.contentRect.left,
+      this.Editor.UI.contentRect.left + realLeftCoord <
+        this.Editor.UI.contentRect.left,
     );
+    // console.log(
+    //   realLeftCoord,
+    //   realRightCoord,
+    //   this.Editor.UI.contentRect.left,
+    //   this.Editor.UI.contentRect.right,
+    //   this.Editor.UI.contentRect,
+    //   this.width,
+    // );
 
     this.nodes.wrapper.classList.toggle(
       this.CSS.inlineToolbarRightOriented,
-      realRightCoord > this.Editor.UI.contentRect.right,
+      this.Editor.UI.contentRect.left + realRightCoord >
+        this.Editor.UI.contentRect.right,
     );
 
     this.nodes.wrapper.style.left = Math.floor(newCoords.x) + 'px';
@@ -253,14 +274,17 @@ export default class InlineToolbar extends Module {
       }
     });
 
-    this.buttonsList = this.nodes.buttons.querySelectorAll(`.${this.CSS.inlineToolButton}`);
+    this.buttonsList = this.nodes.buttons.querySelectorAll(
+      `.${this.CSS.inlineToolButton}`,
+    );
     this.opened = true;
 
     /**
      * Get currently visible buttons to pass it to the Flipper
      */
-    const visibleTools = Array.from(this.buttonsList)
-      .filter((tool) => !(tool as HTMLElement).hidden) as HTMLElement[];
+    const visibleTools = Array.from(this.buttonsList).filter(
+      (tool) => !(tool as HTMLElement).hidden,
+    ) as HTMLElement[];
 
     this.flipper.activate(visibleTools);
   }
@@ -287,11 +311,14 @@ export default class InlineToolbar extends Module {
       return false;
     }
 
-    const target = !$.isElement(currentSelection.anchorNode )
+    const target = !$.isElement(currentSelection.anchorNode)
       ? currentSelection.anchorNode.parentElement
       : currentSelection.anchorNode;
 
-    if (currentSelection && tagsConflictsWithSelection.includes(target.tagName)) {
+    if (
+      currentSelection &&
+      tagsConflictsWithSelection.includes(target.tagName)
+    ) {
       return false;
     }
 
@@ -303,7 +330,9 @@ export default class InlineToolbar extends Module {
     }
 
     // is enabled by current Block's Tool
-    const currentBlock = this.Editor.BlockManager.getBlock(currentSelection.anchorNode as HTMLElement);
+    const currentBlock = this.Editor.BlockManager.getBlock(
+      currentSelection.anchorNode as HTMLElement,
+    );
 
     if (!currentBlock) {
       return false;
@@ -311,7 +340,10 @@ export default class InlineToolbar extends Module {
 
     const toolSettings = this.Editor.Tools.getToolSettings(currentBlock.name);
 
-    return toolSettings && toolSettings[this.Editor.Tools.USER_SETTINGS.ENABLED_INLINE_TOOLS];
+    return (
+      toolSettings &&
+      toolSettings[this.Editor.Tools.USER_SETTINGS.ENABLED_INLINE_TOOLS]
+    );
   }
 
   /**
@@ -319,16 +351,22 @@ export default class InlineToolbar extends Module {
    */
   private filterTools(): void {
     const currentSelection = SelectionUtils.get(),
-      currentBlock = this.Editor.BlockManager.getBlock(currentSelection.anchorNode as HTMLElement);
+      currentBlock = this.Editor.BlockManager.getBlock(
+        currentSelection.anchorNode as HTMLElement,
+      );
 
     const toolSettings = this.Editor.Tools.getToolSettings(currentBlock.name),
-      inlineToolbarSettings = toolSettings && toolSettings[this.Editor.Tools.USER_SETTINGS.ENABLED_INLINE_TOOLS];
+      inlineToolbarSettings =
+        toolSettings &&
+        toolSettings[this.Editor.Tools.USER_SETTINGS.ENABLED_INLINE_TOOLS];
 
     /**
      * All Inline Toolbar buttons
      * @type {HTMLElement[]}
      */
-    const buttons = Array.from(this.nodes.buttons.querySelectorAll(`.${this.CSS.inlineToolButton}`)) as HTMLElement[];
+    const buttons = Array.from(
+      this.nodes.buttons.querySelectorAll(`.${this.CSS.inlineToolButton}`),
+    ) as HTMLElement[];
 
     /**
      * Show previously hided
@@ -388,10 +426,7 @@ export default class InlineToolbar extends Module {
    * Add tool button and activate clicks
    */
   private addTool(toolName: string, tool: InlineTool): void {
-    const {
-      Listeners,
-      Tools,
-    } = this.Editor;
+    const { Listeners, Tools } = this.Editor;
 
     const button = tool.render();
 
@@ -424,15 +459,18 @@ export default class InlineToolbar extends Module {
     /**
      * Get internal inline tools
      */
-    const internalTools: string[] = Object
-      .entries(Tools.internalTools)
-      .filter(([name, toolClass]: [string, ToolConstructable | ToolSettings]) => {
-        if (_.isFunction(toolClass)) {
-          return toolClass[Tools.INTERNAL_SETTINGS.IS_INLINE];
-        }
+    const internalTools: string[] = Object.entries(Tools.internalTools)
+      .filter(
+        ([name, toolClass]: [string, ToolConstructable | ToolSettings]) => {
+          if (_.isFunction(toolClass)) {
+            return toolClass[Tools.INTERNAL_SETTINGS.IS_INLINE];
+          }
 
-        return (toolClass as ToolSettings).class[Tools.INTERNAL_SETTINGS.IS_INLINE];
-      })
+          return (toolClass as ToolSettings).class[
+            Tools.INTERNAL_SETTINGS.IS_INLINE
+          ];
+        },
+      )
       .map(([name]: [string, InlineToolConstructable | ToolSettings]) => name);
 
     /**
@@ -459,7 +497,7 @@ export default class InlineToolbar extends Module {
     this.Editor.Shortcuts.add({
       name: shortcut,
       handler: (event) => {
-        const {currentBlock} = this.Editor.BlockManager;
+        const { currentBlock } = this.Editor.BlockManager;
 
         /**
          * Editor is not focused
@@ -473,11 +511,16 @@ export default class InlineToolbar extends Module {
          * it can be used by tools like «Mention» that works without selection:
          * Example: by SHIFT+@ show dropdown and insert selected username
          */
-          // if (SelectionUtils.isCollapsed) return;
+        // if (SelectionUtils.isCollapsed) return;
 
-        const toolSettings = this.Editor.Tools.getToolSettings(currentBlock.name);
+        const toolSettings = this.Editor.Tools.getToolSettings(
+          currentBlock.name,
+        );
 
-        if (!toolSettings || !toolSettings[this.Editor.Tools.USER_SETTINGS.ENABLED_INLINE_TOOLS]) {
+        if (
+          !toolSettings ||
+          !toolSettings[this.Editor.Tools.USER_SETTINGS.ENABLED_INLINE_TOOLS]
+        ) {
           return;
         }
 
@@ -518,7 +561,10 @@ export default class InlineToolbar extends Module {
       if (this.Editor.Tools.inline.hasOwnProperty(tool)) {
         const toolSettings = this.Editor.Tools.getToolSettings(tool);
 
-        result[tool] = this.Editor.Tools.constructInline(this.Editor.Tools.inline[tool], toolSettings);
+        result[tool] = this.Editor.Tools.constructInline(
+          this.Editor.Tools.inline[tool],
+          toolSettings,
+        );
       }
     }
 

@@ -34,22 +34,25 @@ import Block from '../block';
  * @property {Element} nodes.redactor - <ce-redactor>
  */
 export default class UI extends Module {
-
   /**
    * Editor.js UI CSS class names
    * @return {{editorWrapper: string, editorZone: string}}
    */
   public get CSS(): {
-    editorWrapper: string, editorWrapperNarrow: string, editorZone: string, editorZoneHidden: string,
-    editorLoader: string, editorEmpty: string,
+    editorWrapper: string
+    editorWrapperNarrow: string
+    editorZone: string
+    editorZoneHidden: string
+    editorLoader: string
+    editorEmpty: string,
   } {
     return {
-      editorWrapper    : 'codex-editor',
-      editorWrapperNarrow : 'codex-editor--narrow',
-      editorZone       : 'codex-editor__redactor',
-      editorZoneHidden : 'codex-editor__redactor--hidden',
-      editorLoader     : 'codex-editor__loader',
-      editorEmpty      : 'codex-editor--empty',
+      editorWrapper: 'codex-editor',
+      editorWrapperNarrow: 'codex-editor--narrow',
+      editorZone: 'codex-editor__redactor',
+      editorZoneHidden: 'codex-editor__redactor--hidden',
+      editorLoader: 'codex-editor__loader',
+      editorEmpty: 'codex-editor--empty',
     };
   }
 
@@ -181,9 +184,12 @@ export default class UI extends Module {
    * Check if Editor is empty and set CSS class to wrapper
    */
   public checkEmptiness(): void {
-    const {BlockManager} = this.Editor;
+    const { BlockManager } = this.Editor;
 
-    this.nodes.wrapper.classList.toggle(this.CSS.editorEmpty, BlockManager.isEditorEmpty);
+    this.nodes.wrapper.classList.toggle(
+      this.CSS.editorEmpty,
+      BlockManager.isEditorEmpty,
+    );
   }
 
   /**
@@ -192,9 +198,19 @@ export default class UI extends Module {
    * @return {boolean}
    */
   public get someToolbarOpened() {
-    const { Toolbox, BlockSettings, InlineToolbar, ConversionToolbar } = this.Editor;
+    const {
+      Toolbox,
+      BlockSettings,
+      InlineToolbar,
+      ConversionToolbar,
+    } = this.Editor;
 
-    return BlockSettings.opened || InlineToolbar.opened || ConversionToolbar.opened || Toolbox.opened;
+    return (
+      BlockSettings.opened ||
+      InlineToolbar.opened ||
+      ConversionToolbar.opened ||
+      Toolbox.opened
+    );
   }
 
   /**
@@ -208,7 +224,7 @@ export default class UI extends Module {
    * Check for mobile mode and cache a result
    */
   private checkIsMobile() {
-    this.isMobile = window.innerWidth < 650;
+    this.isMobile = window.innerWidth < 9999;
   }
 
   /**
@@ -225,7 +241,7 @@ export default class UI extends Module {
     /**
      * Create and save main UI elements
      */
-    this.nodes.wrapper  = $.make('div', this.CSS.editorWrapper);
+    this.nodes.wrapper = $.make('div', this.CSS.editorWrapper);
     this.nodes.redactor = $.make('div', this.CSS.editorZone);
 
     /**
@@ -242,7 +258,6 @@ export default class UI extends Module {
 
     this.nodes.wrapper.appendChild(this.nodes.redactor);
     this.nodes.holder.appendChild(this.nodes.wrapper);
-
   }
 
   /**
@@ -277,23 +292,43 @@ export default class UI extends Module {
       (event) => this.redactorClicked(event as MouseEvent),
       false,
     );
-    this.Editor.Listeners.on(document, 'keydown', (event) => this.documentKeydown(event as KeyboardEvent), true);
-    this.Editor.Listeners.on(document, 'click', (event) => this.documentClicked(event as MouseEvent), true);
+    this.Editor.Listeners.on(
+      document,
+      'keydown',
+      (event) => this.documentKeydown(event as KeyboardEvent),
+      true,
+    );
+    this.Editor.Listeners.on(
+      document,
+      'click',
+      (event) => this.documentClicked(event as MouseEvent),
+      true,
+    );
 
     /**
      * Handle selection change on mobile devices for the Inline Toolbar support
      */
     if (_.isTouchSupported()) {
-      this.Editor.Listeners.on(document, 'selectionchange', (event) => {
-        this.selectionChanged(event as Event);
-      }, true);
+      this.Editor.Listeners.on(
+        document,
+        'selectionchange',
+        (event) => {
+          this.selectionChanged(event as Event);
+        },
+        true,
+      );
     }
 
-    this.Editor.Listeners.on(window, 'resize', () => {
-      this.resizeDebouncer();
-    }, {
-      passive: true,
-    });
+    this.Editor.Listeners.on(
+      window,
+      'resize',
+      () => {
+        this.resizeDebouncer();
+      },
+      {
+        passive: true,
+      },
+    );
   }
 
   /**
@@ -334,9 +369,12 @@ export default class UI extends Module {
    * @param {KeyboardEvent} event
    */
   private defaultBehaviour(event: KeyboardEvent): void {
-    const keyDownOnEditor = (event.target as HTMLElement).closest(`.${this.CSS.editorWrapper}`);
-    const {currentBlock} = this.Editor.BlockManager;
-    const isMetaKey = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+    const keyDownOnEditor = (event.target as HTMLElement).closest(
+      `.${this.CSS.editorWrapper}`,
+    );
+    const { currentBlock } = this.Editor.BlockManager;
+    const isMetaKey =
+      event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
     /**
      * Ignore keydowns on editor and meta keys
@@ -360,11 +398,14 @@ export default class UI extends Module {
    * @param {KeyboardEvent} event
    */
   private backspacePressed(event: KeyboardEvent): void {
-    const {BlockManager, BlockSelection, Caret} = this.Editor;
+    const { BlockManager, BlockSelection, Caret } = this.Editor;
 
     if (BlockSelection.anyBlockSelected) {
       const selectionPositionIndex = BlockManager.removeSelectedBlocks();
-      Caret.setToBlock(BlockManager.insertInitialBlockAtIndex(selectionPositionIndex, true), Caret.positions.START);
+      Caret.setToBlock(
+        BlockManager.insertInitialBlockAtIndex(selectionPositionIndex, true),
+        Caret.positions.START,
+      );
 
       /** Clear selection */
       BlockSelection.clearSelection(event);
@@ -389,7 +430,10 @@ export default class UI extends Module {
 
     if (BlockSelection.anyBlockSelected) {
       const selectionPositionIndex = BlockManager.removeSelectedBlocks();
-      Caret.setToBlock(BlockManager.insertInitialBlockAtIndex(selectionPositionIndex, true), Caret.positions.START);
+      Caret.setToBlock(
+        BlockManager.insertInitialBlockAtIndex(selectionPositionIndex, true),
+        Caret.positions.START,
+      );
 
       /** Clear selection */
       BlockSelection.clearSelection(event);
@@ -412,7 +456,11 @@ export default class UI extends Module {
      * So, BlockManager points some Block and Enter press is on Body
      * We can create a new block
      */
-    if (!this.someToolbarOpened && hasPointerToBlock && (event.target as HTMLElement).tagName === 'BODY') {
+    if (
+      !this.someToolbarOpened &&
+      hasPointerToBlock &&
+      (event.target as HTMLElement).tagName === 'BODY'
+    ) {
       /**
        * Insert initial typed Block
        */
@@ -452,7 +500,8 @@ export default class UI extends Module {
      * Do not fire check on clicks at the Inline Toolbar buttons
      */
     const target = event.target as HTMLElement;
-    const clickedInsideOfEditor = this.nodes.holder.contains(target) || Selection.isAtEditor;
+    const clickedInsideOfEditor =
+      this.nodes.holder.contains(target) || Selection.isAtEditor;
 
     if (!clickedInsideOfEditor) {
       /**
@@ -476,7 +525,9 @@ export default class UI extends Module {
       if (Selection.anchorNode === this.nodes.redactor) {
         this.Editor.Caret.setToTheLastBlock();
       } else {
-        this.Editor.BlockManager.setCurrentBlockByChildNode(Selection.anchorNode);
+        this.Editor.BlockManager.setCurrentBlockByChildNode(
+          Selection.anchorNode,
+        );
       }
     }
   }
@@ -516,7 +567,10 @@ export default class UI extends Module {
      * If click was fired is on Editor`s wrapper, try to get clicked node by elementFromPoint method
      */
     if (clickedNode === this.nodes.redactor) {
-      clickedNode = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement;
+      clickedNode = document.elementFromPoint(
+        event.clientX,
+        event.clientY,
+      ) as HTMLElement;
     }
 
     /**
@@ -563,7 +617,9 @@ export default class UI extends Module {
      * - Block is an initial-block (Text)
      * - Block is empty
      */
-    const isInitialBlock = this.Editor.Tools.isInitial(this.Editor.BlockManager.currentBlock.tool);
+    const isInitialBlock = this.Editor.Tools.isInitial(
+      this.Editor.BlockManager.currentBlock.tool,
+    );
 
     if (isInitialBlock) {
       /**

@@ -642,7 +642,7 @@ export default class Paste extends Module {
    * @returns Promise<{data: BlockToolData, tool: string}>
    */
   private processPattern(text: string): { event: PasteEvent; tool: string } {
-    const pattern = this.toolsPatterns.find(substitute => {
+    const pattern = this.toolsPatterns.find((substitute) => {
       const execResult = substitute.pattern.exec(text);
 
       if (!execResult) {
