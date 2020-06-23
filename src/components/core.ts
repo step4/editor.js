@@ -1,7 +1,7 @@
-import $ from './dom';
-import _ from './utils';
-import {EditorConfig, OutputData, SanitizerConfig} from '../../types';
-import {EditorModules} from '../types-internal/editor-modules';
+import $ from "./dom";
+import _ from "./utils";
+import { EditorConfig, OutputData, SanitizerConfig } from "../../types";
+import { EditorModules } from "../types-internal/editor-modules";
 
 /**
  * @typedef {Core} Core - editor core class
@@ -10,7 +10,7 @@ import {EditorModules} from '../types-internal/editor-modules';
 /**
  * Require Editor modules places in components/modules dir
  */
-const contextRequire = require.context('./modules', true);
+const contextRequire = require.context("./modules", true);
 
 const modules = [];
 
@@ -36,7 +36,6 @@ contextRequire.keys().forEach((filename) => {
  * @type {Core}
  */
 export default class Core {
-
   /**
    * Editor configuration passed by user to the constructor
    */
@@ -56,7 +55,7 @@ export default class Core {
    * @param {EditorConfig} config - user configuration
    *
    */
-  constructor(config?: EditorConfig|string) {
+  constructor(config?: EditorConfig | string) {
     /**
      * Ready promise. Resolved if Editor.js is ready to work, rejected otherwise
      */
@@ -75,11 +74,11 @@ export default class Core {
         await this.init();
         await this.start();
 
-        _.log('I\'m ready! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', 'log', '', 'color: #E24A75');
+        // _.log('I\'m ready! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧', 'log', '', 'color: #E24A75');
 
         setTimeout(() => {
           if ((this.configuration as EditorConfig).autofocus) {
-            const {BlockManager, Caret} = this.moduleInstances;
+            const { BlockManager, Caret } = this.moduleInstances;
 
             Caret.setToBlock(BlockManager.blocks[0], Caret.positions.START);
           }
@@ -96,7 +95,7 @@ export default class Core {
         }, 500);
       })
       .catch((error) => {
-        _.log(`Editor.js is not ready because of ${error}`, 'error');
+        _.log(`Editor.js is not ready because of ${error}`, "error");
 
         /**
          * Reject this.isReady promise
@@ -109,12 +108,12 @@ export default class Core {
    * Setting for configuration
    * @param {EditorConfig|string|undefined} config
    */
-  set configuration(config: EditorConfig|string) {
+  set configuration(config: EditorConfig | string) {
     /**
      * Process zero-configuration or with only holderId
      * Make config object
      */
-    if (typeof config !== 'object') {
+    if (typeof config !== "object") {
       config = {
         holder: config,
       };
@@ -126,7 +125,10 @@ export default class Core {
     if (config.holderId && !config.holder) {
       config.holder = config.holderId;
       config.holderId = null;
-      _.log('holderId property will deprecated in next major release, use holder property instead.', 'warn');
+      _.log(
+        "holderId property will deprecated in next major release, use holder property instead.",
+        "warn"
+      );
     }
 
     /**
@@ -139,13 +141,13 @@ export default class Core {
      * If holder is empty then set a default value
      */
     if (this.config.holder == null) {
-      this.config.holder = 'editorjs';
+      this.config.holder = "editorjs";
     }
 
     /**
      * If initial Block's Tool was not passed, use the Paragraph Tool
      */
-    this.config.initialBlock = this.config.initialBlock || 'paragraph';
+    this.config.initialBlock = this.config.initialBlock || "paragraph";
 
     /**
      * Height of Editor's bottom area that allows to set focus on the last Block
@@ -164,15 +166,19 @@ export default class Core {
     };
 
     this.config.placeholder = this.config.placeholder || false;
-    this.config.sanitizer = this.config.sanitizer || {
-      p: true,
-      b: true,
-      a: true,
-    } as SanitizerConfig;
+    this.config.sanitizer =
+      this.config.sanitizer ||
+      ({
+        p: true,
+        b: true,
+        a: true,
+      } as SanitizerConfig);
 
-    this.config.hideToolbar = this.config.hideToolbar ? this.config.hideToolbar : false;
+    this.config.hideToolbar = this.config.hideToolbar
+      ? this.config.hideToolbar
+      : false;
     this.config.tools = this.config.tools || {};
-    this.config.data = this.config.data || {} as OutputData;
+    this.config.data = this.config.data || ({} as OutputData);
     this.config.onReady = this.config.onReady || (() => {});
     this.config.onChange = this.config.onChange || (() => {});
 
@@ -200,7 +206,7 @@ export default class Core {
    * Returns private property
    * @returns {EditorConfig}
    */
-  get configuration(): EditorConfig|string {
+  get configuration(): EditorConfig | string {
     return this.config;
   }
 
@@ -209,21 +215,27 @@ export default class Core {
    * @returns {Promise<void>}
    */
   public async validate(): Promise<void> {
-    const {holderId, holder} = this.config;
+    const { holderId, holder } = this.config;
 
     if (holderId && holder) {
-      throw Error('«holderId» and «holder» param can\'t assign at the same time.');
+      throw Error(
+        "«holderId» and «holder» param can't assign at the same time."
+      );
     }
 
     /**
      * Check for a holder element's existence
      */
-    if (typeof holder === 'string' && !$.get(holder)) {
-      throw Error(`element with ID «${holder}» is missing. Pass correct holder's ID.`);
+    if (typeof holder === "string" && !$.get(holder)) {
+      throw Error(
+        `element with ID «${holder}» is missing. Pass correct holder's ID.`
+      );
     }
 
-    if (holder && typeof holder === 'object' && !$.isElement(holder)) {
-      throw Error('holder as HTMLElement if provided must be inherit from Element class.');
+    if (holder && typeof holder === "object" && !$.isElement(holder)) {
+      throw Error(
+        "holder as HTMLElement if provided must be inherit from Element class."
+      );
     }
   }
 
@@ -252,28 +264,29 @@ export default class Core {
    */
   public async start() {
     const modulesToPrepare = [
-      'Tools',
-      'UI',
-      'BlockManager',
-      'Paste',
-      'DragNDrop',
-      'ModificationsObserver',
-      'BlockSelection',
-      'RectangleSelection',
+      "Tools",
+      "UI",
+      "BlockManager",
+      "Paste",
+      "DragNDrop",
+      "ModificationsObserver",
+      "BlockSelection",
+      "RectangleSelection",
     ];
 
     await modulesToPrepare.reduce(
-      (promise, module) => promise.then(async () => {
-        // _.log(`Preparing ${module} module`, 'time');
+      (promise, module) =>
+        promise.then(async () => {
+          // _.log(`Preparing ${module} module`, 'time');
 
-        try {
-          await this.moduleInstances[module].prepare();
-        } catch (e) {
-          _.log(`Module ${module} was skipped because of %o`, 'warn', e);
-        }
-        // _.log(`Preparing ${module} module`, 'timeEnd');
-      }),
-      Promise.resolve(),
+          try {
+            await this.moduleInstances[module].prepare();
+          } catch (e) {
+            _.log(`Module ${module} was skipped because of %o`, "warn", e);
+          }
+          // _.log(`Preparing ${module} module`, 'timeEnd');
+        }),
+      Promise.resolve()
     );
 
     return this.moduleInstances.Renderer.render(this.config.data.blocks);
@@ -296,7 +309,7 @@ export default class Core {
           config: this.configuration,
         });
       } catch (e) {
-        _.log(`Module ${Module.displayName} skipped because`, 'warn', e);
+        _.log(`Module ${Module.displayName} skipped because`, "warn", e);
       }
     });
   }
